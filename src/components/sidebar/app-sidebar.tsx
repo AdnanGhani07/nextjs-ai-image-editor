@@ -15,6 +15,7 @@ import SidebarMenuItems from "./sidebar-menu-items";
 import { User, Sparkles, Settings } from "lucide-react";
 import Upgrade from "./upgrade";
 import MobileSidebarClose from "./mobile-sidebar-close";
+import NoSsr from "../no-ssr";
 
 export async function AppSidebar() {
   return (
@@ -45,23 +46,25 @@ export async function AppSidebar() {
           <Credits />
           <Upgrade />
         </div>
-        <UserButton
-          variant="outline"
-          className="border-muted-foreground/20 hover:border-primary/50 w-full transition-colors"
-          disableDefaultLinks={true}
-          additionalLinks={[
-            {
-              label: "Customer Portal",
-              href: "/dashboard/customer-portal",
-              icon: <User className="h-4 w-4" />,
-            },
-            {
-              label: "Settings",
-              href: "/dashboard/settings",
-              icon: <Settings className="h-4 w-4" />,
-            },
-          ]}
-        />
+        <NoSsr>
+          <UserButton
+            variant="outline"
+            className="border-muted-foreground/20 hover:border-primary/50 w-full transition-colors"
+            disableDefaultLinks={true}
+            additionalLinks={[
+              {
+                label: "Customer Portal",
+                href: "/dashboard/customer-portal",
+                icon: <User className="h-4 w-4" />,
+              },
+              {
+                label: "Settings",
+                href: "/dashboard/settings",
+                icon: <Settings className="h-4 w-4" />,
+              },
+            ]}
+          />
+        </NoSsr>
       </SidebarFooter>
     </Sidebar>
   );
