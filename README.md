@@ -37,8 +37,8 @@ Welcome to the ultimate AI Image Editor SaaS application! This project demonstra
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/sahandghavidel/ai-image-editor-saas-app.git
-   cd ai-image-editor-saas-app
+   git clone https://github.com/AdnanGhani07/nextjs-ai-image-editor.git
+   cd nextjs-ai-image-editor
    ```
 
 2. **Install dependencies**
