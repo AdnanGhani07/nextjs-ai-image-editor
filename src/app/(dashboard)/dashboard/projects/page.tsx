@@ -47,7 +47,6 @@ export default function ProjectsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState<SortBy>("newest");
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -107,15 +106,13 @@ export default function ProjectsPage() {
 
   const handleDelete = async (project: Project) => {
     if (window.confirm(`Are you sure you want to delete "${project.name ?? 'Untitled Project'}"?`)) {
-      setIsDeleting(project.id);
-      const result = await deleteProject(project.id, project.imageKitId);
+      const result = await deleteProject(project.id);
       if (result.success) {
         // Optimistic UI update: remove project from state immediately
         setUserProjects((current) => current.filter((p) => p.id !== project.id));
       } else {
         alert(result.error);
       }
-      setIsDeleting(null);
     }
   };
 
@@ -126,7 +123,7 @@ export default function ProjectsPage() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${projectName || "Untitled-Project"}.jpg`;
+      a.download = `${projectName ?? "Untitled-Project"}.jpg`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -374,16 +371,9 @@ export default function ProjectsPage() {
                           variant="ghost"
                           size="sm"
                           className="h-8 w-8 p-0"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 w-8 p-0"
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.stopPropagation();
-                            handleDownload(project.imageUrl, project.name);
+                            await handleDownload(project.imageUrl, project.name);
                           }}
                         >
                           <Download className="h-4 w-4" />
@@ -392,9 +382,9 @@ export default function ProjectsPage() {
                           variant="ghost"
                           size="sm"
                           className="text-destructive h-8 w-8 p-0"
-                          onClick={(e) => {
+                          onClick={async (e) => {
                             e.stopPropagation();
-                            handleDelete(project);
+                            await handleDelete(project);
                           }}
                         >
                           <Trash2 className="h-4 w-4" />

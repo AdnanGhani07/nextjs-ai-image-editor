@@ -125,7 +125,7 @@ export async function deductCredits(
   }
 }
 
-export async function deleteProject(projectId: string, imageKitId: string) {
+export async function deleteProject(projectId: string) {
   try {
     // Then, delete the project record from the database
     await db.project.delete({
