@@ -3,6 +3,7 @@
 import { db } from "~/server/db";
 import { auth } from "~/lib/auth";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache";
 
 interface CreateProjectData {
   imageUrl: string;
@@ -121,6 +122,23 @@ export async function deductCredits(
       error,
     );
     return { success: false, error: "Failed to deduct credits" };
+  }
+}
+
+export async function deleteProject(projectId: string, imageKitId: string) {
+  try {
+    // Then, delete the project record from the database
+    await db.project.delete({
+      where: { id: projectId },
+    });
+
+    // Revalidate the projects page to show the updated list
+    revalidatePath("/dashboard/projects");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete project:", error);
+    return { success: false, error: "Failed to delete project." };
   }
 }
 

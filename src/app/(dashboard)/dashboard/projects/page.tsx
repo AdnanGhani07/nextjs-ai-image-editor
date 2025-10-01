@@ -24,6 +24,7 @@ import { Input } from "~/components/ui/input";
 import { useRouter } from "next/navigation";
 import { Image as ImageKitImage } from "@imagekit/next";
 import { env } from "~/env";
+import { deleteProject } from "~/actions/projects";
 
 interface Project {
   id: string;
@@ -46,6 +47,7 @@ export default function ProjectsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [sortBy, setSortBy] = useState<SortBy>("newest");
+  const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -102,6 +104,38 @@ export default function ProjectsPage() {
 
     setFilteredProjects(filtered);
   }, [userProjects, searchQuery, sortBy]);
+
+  const handleDelete = async (project: Project) => {
+    if (window.confirm(`Are you sure you want to delete "${project.name ?? 'Untitled Project'}"?`)) {
+      setIsDeleting(project.id);
+      const result = await deleteProject(project.id, project.imageKitId);
+      if (result.success) {
+        // Optimistic UI update: remove project from state immediately
+        setUserProjects((current) => current.filter((p) => p.id !== project.id));
+      } else {
+        alert(result.error);
+      }
+      setIsDeleting(null);
+    }
+  };
+
+  const handleDownload = async (imageUrl: string, projectName: string | null) => {
+    try {
+      const response = await fetch(imageUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${projectName || "Untitled-Project"}.jpg`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed:", error);
+      alert("Failed to download image.");
+    }
+  };
 
   const handleProjectClick = (_project: Project) => {
     // Navigate to create page with project data - you can extend this to load the project
@@ -347,6 +381,10 @@ export default function ProjectsPage() {
                           variant="ghost"
                           size="sm"
                           className="h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDownload(project.imageUrl, project.name);
+                          }}
                         >
                           <Download className="h-4 w-4" />
                         </Button>
@@ -354,6 +392,10 @@ export default function ProjectsPage() {
                           variant="ghost"
                           size="sm"
                           className="text-destructive h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(project);
+                          }}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
